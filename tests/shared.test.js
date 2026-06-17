@@ -33,7 +33,7 @@ function assertExcludesAll(values, expected, label) {
 }
 
 assert.equal(manifest.manifest_version, 3);
-assert.equal(manifest.version, "0.2.3");
+assert.equal(manifest.version, "0.2.4");
 assert.equal(manifest.name, "Stack Highlighter");
 assert.ok(manifest.permissions.includes("storage"));
 assert.ok(manifest.permissions.includes("sidePanel"));
@@ -50,6 +50,7 @@ for (const id of [
   "jsonEditorPanel",
   "jsonTextarea",
   "addCategoryButton",
+  "cancelCategoryButton",
   "disabledOverlay",
   "disabledEnableButton"
 ]) {
@@ -57,6 +58,8 @@ for (const id of [
 }
 
 assert.equal(shared.sanitizeKeyword("  React,  "), "React");
+assert.match(sidepanelHtml, /class="category-color-button"/, "category color button should exist in category template");
+assert.match(sidepanelHtml, /class="category-color-input hidden"/, "category color input should exist in category template");
 assert.equal(shared.sanitizeStoredKeyword("  React,  "), "react");
 assert.equal(shared.sanitizeKeyword(" “Self Motivated.” "), "Self Motivated");
 assert.equal(shared.selectionKeyword("one two three four five six"), "");

@@ -56,6 +56,7 @@
   const jsonCloseButton = document.getElementById("jsonCloseButton");
   const addCategoryButton = document.getElementById("addCategoryButton");
   const addCategoryForm = document.getElementById("addCategoryForm");
+  const cancelCategoryButton = document.getElementById("cancelCategoryButton");
   const categoryNameInput = document.getElementById("categoryNameInput");
   const categoryColorInput = document.getElementById("categoryColorInput");
 
@@ -225,6 +226,8 @@
       const chips = node.querySelector(".chips");
       const deleteCategoryButton = node.querySelector(".delete-category-button");
       const categoryEnabledButton = node.querySelector(".category-enabled-button");
+      const categoryColorButton = node.querySelector(".category-color-button");
+      const categoryColorInput = node.querySelector(".category-color-input");
       const moveUpButton = node.querySelector(".category-move-up-button");
       const moveDownButton = node.querySelector(".category-move-down-button");
       const selectedAddChip = node.querySelector(".selected-add-chip");
@@ -253,6 +256,9 @@
       node.classList.toggle("disabled-category", !isCategoryEnabled);
       title.textContent = category.label;
       count.textContent = `${pageMatchCount}/${category.keywords.length}`;
+      categoryColorInput.value = category.color;
+      categoryColorButton.title = `Change ${category.label} color`;
+      categoryColorButton.setAttribute("aria-label", categoryColorButton.title);
       headerButton.setAttribute("aria-expanded", String(!isCollapsed));
       headerButton.setAttribute("aria-label", `${isCollapsed ? "Expand" : "Collapse"} ${category.label}`);
       moveUpButton.disabled = categoryIndex <= 0;
@@ -277,6 +283,20 @@
       selectedAddChip.addEventListener("click", async (event) => {
         event.stopPropagation();
         await addSelectedKeywordToCategory(category.id);
+      });
+
+      categoryColorButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        categoryColorInput.click();
+      });
+
+      categoryColorInput.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+
+      categoryColorInput.addEventListener("change", async (event) => {
+        event.stopPropagation();
+        await updateCategoryColor(category.id, event.target.value);
       });
 
       moveUpButton.addEventListener("click", async (event) => {
@@ -356,12 +376,29 @@
     await saveCategories(nextCategories);
   }
 
+  async function updateCategoryColor(categoryId, color) {
+    if (!/^#[0-9a-f]{6}$/i.test(color)) return;
+
+    const nextCategories = categories.map((category) => {
+      if (category.id !== categoryId) return category;
+      return { ...category, color };
+    });
+
+    await saveCategories(nextCategories);
+  }
+
   function renderEnabledState() {
     enabledToggleButton.classList.toggle("enabled-off", !highlightingEnabled);
     enabledToggleButton.title = highlightingEnabled ? "Disable highlights" : "Enable highlights";
     enabledToggleButton.setAttribute("aria-label", enabledToggleButton.title);
     document.querySelector(".app-shell")?.classList.toggle("disabled", !highlightingEnabled);
     disabledOverlay.classList.toggle("hidden", highlightingEnabled);
+  }
+
+  function closeAddCategoryForm() {
+    categoryNameInput.value = "";
+    categoryColorInput.value = "#14b8a6";
+    addCategoryForm.classList.add("hidden");
   }
 
   async function toggleCategoryEnabled(categoryId) {
@@ -670,6 +707,7 @@
     addCategoryForm.classList.toggle("hidden");
     if (!addCategoryForm.classList.contains("hidden")) categoryNameInput.focus();
   });
+  cancelCategoryButton.addEventListener("click", closeAddCategoryForm);
   addCategoryForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const result = addCategory(categories, categoryNameInput.value, categoryColorInput.value);
@@ -678,8 +716,7 @@
       return;
     }
 
-    categoryNameInput.value = "";
-    addCategoryForm.classList.add("hidden");
+    closeAddCategoryForm();
     await saveCategories(result.categories);
   });
 

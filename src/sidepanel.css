@@ -339,6 +339,25 @@ textarea {
   background: transparent;
 }
 
+.category-color-button {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.category-color-button:hover,
+.category-color-button:focus-visible {
+  background: color-mix(in srgb, var(--category-color) 12%, white);
+  outline: 3px solid color-mix(in srgb, var(--category-color) 18%, transparent);
+}
+
 .category-toggle {
   min-width: 0;
   flex: 0 1 auto;
@@ -645,7 +664,7 @@ textarea {
 
 .add-category-form {
   display: grid;
-  grid-template-columns: 1fr 34px auto;
+  grid-template-columns: 1fr 34px auto auto;
   gap: 8px;
 }
 
@@ -666,6 +685,11 @@ textarea {
   padding: 2px;
   background: #ffffff;
   cursor: pointer;
+}
+
+.add-category-form .secondary-action {
+  color: #52615b;
+  background: rgba(248, 251, 249, 0.88);
 }
 
 .disabled-overlay {

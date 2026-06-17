@@ -63,6 +63,7 @@
           <input id="categoryNameInput" type="text" placeholder="Category name" autocomplete="off" />
           <input id="categoryColorInput" type="color" value="#14b8a6" title="Category color" aria-label="Category color" />
           <button type="submit">Add</button>
+          <button id="cancelCategoryButton" class="secondary-action" type="button">Cancel</button>
         </form>
       </section>
 
@@ -85,9 +86,12 @@
               <span aria-hidden="true">↓</span>
             </button>
           </div>
+          <button class="category-color-button" type="button" title="Change category color" aria-label="Change category color">
+            <span class="category-dot"></span>
+          </button>
+          <input class="category-color-input hidden" type="color" aria-label="Category color" />
           <button class="category-toggle" type="button">
             <span class="category-title-wrap">
-              <span class="category-dot"></span>
               <h2></h2>
               <span class="category-count"></span>
             </span>

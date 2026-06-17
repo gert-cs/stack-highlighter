@@ -25,6 +25,7 @@ Additional Chrome Web Store screenshots can be placed in `assets/screenshots/`.
 - Searches keywords from the top search box.
 - Shows short page selections in the panel without changing the current keyword filters.
 - Adds selected text through the small `+` button on the chosen category header.
+- Lets category colors be changed directly from each category header.
 - Uses greedy longest matching, so `React Native` wins over `React` on the page.
 - Allows simple plural suffixes, so a `database` keyword can match `databases` while only highlighting the keyword body.
 - Colors keywords found on the current page and fades keywords that are in the library but not present on the page.
@@ -91,7 +92,7 @@ Click `View Json keywords` to edit the keyword table directly. The JSON format c
 
 ### Add Or Delete Categories
 
-Category add/delete is available but still being tested. Use the large `+` at the bottom of the panel to add a category. Use the `−` button on a category header to delete a category; export a JSON backup first because category deletion cannot be undone.
+Category add/delete is available but still being tested. Use the large `+` at the bottom of the panel to add a category, or `Cancel` to close the add form without saving. Use the color dot on a category header to update that category's highlight color. Use the `−` button on a category header to delete a category; export a JSON backup first because category deletion cannot be undone.
 
 ## Privacy And Permissions
 
