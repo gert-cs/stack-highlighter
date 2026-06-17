@@ -15,6 +15,7 @@
     buildKeywordRegex,
     canUsePluralSuffix,
     categoriesFromStorage,
+    ensureDefaultCategoriesLoaded,
     flattenKeywords,
     isHighlightingEnabled,
     migrateCategoriesForVersion,
@@ -102,6 +103,8 @@
   }
 
   async function loadCategoriesAndRefresh() {
+    await ensureDefaultCategoriesLoaded();
+
     const stored = await chrome.storage.sync.get([
       STORAGE_KEYS.categories,
       STORAGE_KEYS.keywordDataVersion,

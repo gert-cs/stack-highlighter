@@ -15,7 +15,10 @@
   };
 
   /** Bump this when default keyword data should be added to existing users. */
-  const CURRENT_KEYWORD_DATA_VERSION = 10;
+  const CURRENT_KEYWORD_DATA_VERSION = 11;
+
+  /** Packaged keyword table used to seed fresh installs and additive migrations. */
+  const DEFAULT_KEYWORD_TABLE_PATH = "data/default-keywords.json";
 
   /** Built-in category order used for a fresh install and restored defaults. */
   const CATEGORY_ORDER = ["redFlags", "hardSkills", "patterns", "softSkills", "other"];
@@ -274,135 +277,14 @@
     }
   ];
 
-  /** Keywords added to existing saved tables when the data version increases. */
-  const KEYWORD_DATA_MIGRATION_ADDITIONS = {
-    hardSkills: [
-      "Go",
-      "C",
-      "C++",
-      "C#",
-      "Git",
-      "Linux",
-      "Bash",
-      "Shell",
-      "RESTful API",
-      "GraphQL",
-      "NoSQL",
-      "pgvector",
-      "MongoDB",
-      "DynamoDB",
-      "Elasticsearch",
-      "RabbitMQ",
-      "Redpanda",
-      "AWS",
-      "EC2",
-      "EKS",
-      "S3",
-      "Lambda",
-      "API Gateway",
-      "SQS",
-      "RDS",
-      "Azure",
-      "GCP",
-      "Terraform",
-      "Jenkins",
-      "GitLab CI",
-      "Selenium",
-      "Cypress",
-      "Jest",
-      "JUnit",
-      "OpenAI API",
-      "MCP SDK",
-      "BM25",
-      "Vector Database",
-      "Tool Calling",
-      "Multi-Agent Workflow",
-      "Prompt Engineering",
-      "Machine Learning",
-      "Deep Learning",
-      "NLP",
-      "LLM",
-      "PyTorch",
-      "TensorFlow",
-      "scikit-learn",
-      "Pandas",
-      "NumPy",
-      "XGBoost",
-      "Spark",
-      "Airflow",
-      "Snowflake",
-      "Databricks",
-      "Neo4j",
-      "NebulaGraph",
-      "Vue",
-      "Angular",
-      "CSS",
-      "HTML",
-      "Vibe Coding",
-      "Codex",
-      "Cursor",
-      "Claude Code"
-    ],
-    patterns: [
-      "Agile",
-      "CQRS",
-      "Cloud Computing",
-      "Data Modeling",
-      "Database Design",
-      "Data Pipeline",
-      "Data Visualization",
-      "Data Warehousing",
-      "DevOps",
-      "ETL",
-      "Event-Driven Architecture",
-      "Feature Engineering",
-      "Incident Detection",
-      "Indexing",
-      "Integration Testing",
-      "Optimistic Locking",
-      "Outbox Pattern",
-      "Query Optimization",
-      "Scalability",
-      "Schema Design",
-      "Scrum",
-      "System Design",
-      "TDD",
-      "Test Automation",
-      "Unit Testing",
-      "Distributed System",
-      "Microservice",
-      "MLOps",
-      "Model Evaluation",
-      "Object-Oriented Programming"
-    ],
-    softSkills: [
-      "Analytical",
-      "Attention to Detail",
-      "Adaptability",
-      "Teamwork",
-      "Leadership",
-      "Cross-functional",
-      "Customer Focus",
-      "Fast-paced",
-      "Written Communication",
-      "Verbal Communication"
-    ],
-    redFlags: [
-      "authorized to work",
-      "without sponsorship",
-      "requires sponsorship",
-      "US Person",
-      "U.S. Person"
-    ],
-    other: ["2027", "Undergraduate", "Bachelor", "Full-time", "Part-time", "Co-op"]
-  };
-
   /** Trims user selections such as " Python," into the useful keyword body. */
   const trailingPunctuation = /^[\s"'“”‘’([{<]+|[\s.,;:!?，。；：！？"'“”‘’)\]}>]+$/g;
   /** A word boundary for matching: letters, numbers, and underscore stay internal. */
   const textTokenBoundary = "[^\\p{L}\\p{N}_]";
   /** Palette for imported or user-created categories without valid colors. */
   const fallbackCategoryColors = ["#4f8cff", "#43b883", "#9b7bff", "#ff6b6b", "#f2b84b", "#14b8a6", "#ef7d55"];
+  let defaultCategoriesLoaded = false;
+  let defaultCategoriesLoadingPromise = null;
 
   /** Category and text normalization helpers. */
   function cloneCategories(categories) {
@@ -574,7 +456,7 @@
     };
   }
 
-  function categoriesFromKeywordTableJson(jsonText) {
+  function keywordTablePayloadFromJson(jsonText) {
     let parsed;
 
     try {
@@ -589,7 +471,64 @@
     }
 
     assertUniqueCategoryNames(categoryPayload);
-    return categoriesFromStorage(categoryPayload);
+    return categoryPayload;
+  }
+
+  function categoriesFromKeywordTableJson(jsonText) {
+    return categoriesFromStorage(keywordTablePayloadFromJson(jsonText));
+  }
+
+  function categoriesFromDefaultKeywordTableJson(jsonText) {
+    const defaultsByLabel = new Map(DEFAULT_CATEGORIES.map((category) => [normalizeKeyword(category.label), category]));
+    const defaultPayload = keywordTablePayloadFromJson(jsonText).map((category) => {
+      const defaultCategory = defaultsByLabel.get(normalizeKeyword(category?.name || category?.label || category?.id));
+      if (!defaultCategory) return category;
+
+      return {
+        ...category,
+        id: defaultCategory.id,
+        label: defaultCategory.label,
+        color: category.color || defaultCategory.color
+      };
+    });
+
+    return sortCategoriesByDefaultOrder(categoriesFromStorage(defaultPayload));
+  }
+
+  function setDefaultCategoriesFromKeywordTableJson(jsonText) {
+    const nextDefaults = categoriesFromDefaultKeywordTableJson(jsonText);
+    DEFAULT_CATEGORIES.splice(0, DEFAULT_CATEGORIES.length, ...nextDefaults);
+    defaultCategoriesLoaded = true;
+    return cloneCategories(DEFAULT_CATEGORIES);
+  }
+
+  function defaultKeywordTableUrl() {
+    if (typeof chrome === "undefined" || !chrome.runtime?.getURL) return "";
+    return chrome.runtime.getURL(DEFAULT_KEYWORD_TABLE_PATH);
+  }
+
+  async function ensureDefaultCategoriesLoaded() {
+    if (defaultCategoriesLoaded) return cloneCategories(DEFAULT_CATEGORIES);
+    if (defaultCategoriesLoadingPromise) return defaultCategoriesLoadingPromise;
+
+    const url = defaultKeywordTableUrl();
+    if (!url || typeof fetch !== "function") {
+      defaultCategoriesLoaded = true;
+      return cloneCategories(DEFAULT_CATEGORIES);
+    }
+
+    defaultCategoriesLoadingPromise = fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Unable to load ${DEFAULT_KEYWORD_TABLE_PATH}`);
+        return response.text();
+      })
+      .then((jsonText) => setDefaultCategoriesFromKeywordTableJson(jsonText))
+      .catch(() => {
+        defaultCategoriesLoaded = true;
+        return cloneCategories(DEFAULT_CATEGORIES);
+      });
+
+    return defaultCategoriesLoadingPromise;
   }
 
   function keywordDataVersionFromStorage(value) {
@@ -618,9 +557,9 @@
 
     let updated = restoreMissingDefaultCategories(categories);
 
-    for (const [categoryId, keywords] of Object.entries(KEYWORD_DATA_MIGRATION_ADDITIONS)) {
-      for (const keyword of keywords) {
-        updated = addKeyword(updated, categoryId, keyword).categories;
+    for (const defaultCategory of DEFAULT_CATEGORIES) {
+      for (const keyword of defaultCategory.keywords) {
+        updated = addKeyword(updated, defaultCategory.id, keyword).categories;
       }
     }
 
@@ -762,6 +701,7 @@
   window.StackHighlighterShared = {
     STORAGE_KEYS,
     CURRENT_KEYWORD_DATA_VERSION,
+    DEFAULT_KEYWORD_TABLE_PATH,
     DEFAULT_CATEGORIES,
     addCategory,
     addKeyword,
@@ -772,6 +712,9 @@
     canUsePluralSuffix,
     flattenKeywords,
     categoriesFromKeywordTableJson,
+    categoriesFromDefaultKeywordTableJson,
+    setDefaultCategoriesFromKeywordTableJson,
+    ensureDefaultCategoriesLoaded,
     keywordMatchesQuery,
     keywordTableFromCategories,
     isHighlightingEnabled,

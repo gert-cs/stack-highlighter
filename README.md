@@ -109,12 +109,15 @@ MIT License. See [LICENSE](LICENSE).
 This project intentionally has no build step. Chrome loads the files directly:
 
 - `manifest.json`: Chrome MV3 configuration.
+- `data/default-keywords.json`: default keyword table used for first install and additive keyword migrations.
 - `sidepanel.html`: right panel entrypoint.
 - `src/sidepanel.js`: keyword management UI.
 - `src/contentScript.js`: page selection capture and highlighting.
-- `src/shared.js`: keyword defaults, cleaning, filtering, and matching helpers.
+- `src/shared.js`: keyword loading, cleaning, filtering, migration, and matching helpers.
 - `src/content.css`: highlight styles injected into web pages.
 - `src/sidepanel.css`: panel visual design.
+
+To update the default stack list, export keywords from the side panel and replace `data/default-keywords.json` with that export. Then bump `CURRENT_KEYWORD_DATA_VERSION` in `src/shared.js` so existing installs receive the newly added keywords, and bump `manifest.json` if the extension package behavior changed.
 
 Run the lightweight checks with:
 

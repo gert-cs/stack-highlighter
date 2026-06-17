@@ -5,8 +5,10 @@ const vm = require("node:vm");
 
 const root = path.join(__dirname, "..");
 const sharedPath = path.join(root, "src", "shared.js");
+const defaultKeywordsPath = path.join(root, "data", "default-keywords.json");
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"));
 const sidepanelHtml = fs.readFileSync(path.join(root, "sidepanel.html"), "utf8");
+const defaultKeywordsJson = fs.readFileSync(defaultKeywordsPath, "utf8");
 const sharedSource = fs.readFileSync(sharedPath, "utf8");
 const context = { window: {} };
 
@@ -15,6 +17,8 @@ vm.runInContext(sharedSource, context);
 
 const shared = context.window.StackHighlighterShared;
 const plain = (value) => JSON.parse(JSON.stringify(value));
+
+shared.setDefaultCategoriesFromKeywordTableJson(defaultKeywordsJson);
 
 function keywordsByCategory(categories = shared.categoriesFromStorage(null)) {
   return new Map(categories.map((category) => [category.id, category.keywords]));
@@ -33,12 +37,17 @@ function assertExcludesAll(values, expected, label) {
 }
 
 assert.equal(manifest.manifest_version, 3);
-assert.equal(manifest.version, "0.2.4");
+assert.equal(manifest.version, "0.2.5");
 assert.equal(manifest.name, "Stack Highlighter");
 assert.ok(manifest.permissions.includes("storage"));
 assert.ok(manifest.permissions.includes("sidePanel"));
 assert.ok(manifest.permissions.includes("activeTab"));
 assert.ok(manifest.permissions.includes("scripting"));
+assert.equal(shared.DEFAULT_KEYWORD_TABLE_PATH, "data/default-keywords.json");
+assert.ok(
+  manifest.web_accessible_resources.some((entry) => entry.resources.includes(shared.DEFAULT_KEYWORD_TABLE_PATH)),
+  "default keyword JSON should be packaged as an accessible extension resource"
+);
 
 for (const id of [
   "categoryList",
@@ -81,6 +90,24 @@ assert.deepEqual(plain(categories.map((category) => category.id)), [
 ]);
 
 assertIncludesAll(defaultKeywords.get("hardSkills"), [
+  ".net",
+  "agentic ai",
+  "ai agent",
+  "computer vision",
+  "django",
+  "firebase",
+  "flask",
+  "genai",
+  "golang",
+  "k8s",
+  "llamaindex",
+  "llms",
+  "ml",
+  "prometheus",
+  "spring cloud",
+  "three.js",
+  "vector databases",
+  "version control",
   "python",
   "javascript",
   "typescript",
@@ -103,6 +130,16 @@ assertIncludesAll(defaultKeywords.get("hardSkills"), [
 ], "hard skills");
 
 assertIncludesAll(defaultKeywords.get("patterns"), [
+  "agentic systems",
+  "ai agents",
+  "backend",
+  "dataset-based evaluation",
+  "frontend",
+  "job scoring",
+  "monorepo",
+  "resume tailor",
+  "run status tracking",
+  "structured json",
   "agile",
   "ci/cd",
   "system design",
@@ -114,6 +151,11 @@ assertIncludesAll(defaultKeywords.get("patterns"), [
 ], "patterns");
 
 assertIncludesAll(defaultKeywords.get("softSkills"), [
+  "code review",
+  "code reviews",
+  "debugging",
+  "problem-solving",
+  "quality gates",
   "communication",
   "teamwork",
   "attention to detail",
@@ -121,6 +163,8 @@ assertIncludesAll(defaultKeywords.get("softSkills"), [
 ], "soft skills");
 
 assertIncludesAll(defaultKeywords.get("redFlags"), [
+  "export regulation",
+  "export regulations",
   "sponsorship",
   "without sponsorship",
   "requires sponsorship",
@@ -129,6 +173,13 @@ assertIncludesAll(defaultKeywords.get("redFlags"), [
 ], "red flags");
 
 assertIncludesAll(defaultKeywords.get("other"), [
+  "ai engineers",
+  "computer science",
+  "github",
+  "gpa",
+  "sde",
+  "startup",
+  "yc",
   "intern",
   "internship",
   "2026",
@@ -147,10 +198,9 @@ assertExcludesAll(defaultKeywords.get("hardSkills"), [
 ], "hard skills");
 
 assertExcludesAll(defaultKeywords.get("patterns"), [
-  "monorepo",
-  "job scoring",
-  "run status tracking",
-  "resume tailor"
+  "ats",
+  "crm",
+  "greenhouse"
 ], "patterns");
 
 const importedCategories = shared.categoriesFromKeywordTableJson(JSON.stringify({
@@ -207,11 +257,11 @@ const migrated = shared.migrateCategoriesForVersion(
   0
 );
 const migratedKeywords = keywordsByCategory(migrated);
-assertIncludesAll(migratedKeywords.get("hardSkills"), ["git", "graphql", "terraform", "pytorch", "snowflake"], "migrated hard skills");
-assertIncludesAll(migratedKeywords.get("patterns"), ["agile", "system design", "unit testing"], "migrated patterns");
-assertIncludesAll(migratedKeywords.get("softSkills"), ["teamwork"], "migrated soft skills");
-assertIncludesAll(migratedKeywords.get("redFlags"), ["without sponsorship"], "migrated red flags");
-assertIncludesAll(migratedKeywords.get("other"), ["2027", "co-op"], "migrated other keywords");
+assertIncludesAll(migratedKeywords.get("hardSkills"), ["git", "graphql", "terraform", "pytorch", "snowflake", "genai"], "migrated hard skills");
+assertIncludesAll(migratedKeywords.get("patterns"), ["agile", "system design", "unit testing", "job scoring"], "migrated patterns");
+assertIncludesAll(migratedKeywords.get("softSkills"), ["teamwork", "code review"], "migrated soft skills");
+assertIncludesAll(migratedKeywords.get("redFlags"), ["without sponsorship", "export regulation"], "migrated red flags");
+assertIncludesAll(migratedKeywords.get("other"), ["2027", "co-op", "startup"], "migrated other keywords");
 
 assert.equal(shared.keywordMatchesQuery("React Native", "React"), true);
 assert.equal(shared.keywordMatchesQuery("React", "React Native"), true);

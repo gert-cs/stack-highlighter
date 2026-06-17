@@ -16,6 +16,7 @@
     categoriesFromKeywordTableJson,
     categoriesFromStorage,
     categoryIsEnabled,
+    ensureDefaultCategoriesLoaded,
     isHighlightingEnabled,
     keywordMatchesQuery,
     keywordTableFromCategories,
@@ -73,6 +74,8 @@
 
   /** Startup and persistence: load storage, migrate saved data, save edits, and sync the active page. */
   async function loadState() {
+    await ensureDefaultCategoriesLoaded();
+
     const stored = await chrome.storage.sync.get([
       STORAGE_KEYS.categories,
       STORAGE_KEYS.keywordDataVersion,
