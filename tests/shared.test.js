@@ -43,6 +43,8 @@ assert.ok(manifest.permissions.includes("storage"));
 assert.ok(manifest.permissions.includes("sidePanel"));
 assert.ok(manifest.permissions.includes("activeTab"));
 assert.ok(manifest.permissions.includes("scripting"));
+assert.equal(manifest.icons["128"], "assets/icons/icon-128.png");
+assert.equal(manifest.action.default_icon["128"], "assets/icons/icon-128.png");
 assert.equal(shared.DEFAULT_KEYWORD_TABLE_PATH, "data/default-keywords.json");
 assert.ok(
   manifest.web_accessible_resources.some((entry) => entry.resources.includes(shared.DEFAULT_KEYWORD_TABLE_PATH)),
