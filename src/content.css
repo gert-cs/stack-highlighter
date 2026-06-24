@@ -3,6 +3,7 @@
   padding: 0.05em 0.16em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
+  pointer-events: none;
   color: inherit;
   background: color-mix(in srgb, var(--stack-highlight-color, #4f8cff) 28%, transparent);
   box-shadow: inset 0 -0.16em 0 color-mix(in srgb, var(--stack-highlight-color, #4f8cff) 38%, transparent);

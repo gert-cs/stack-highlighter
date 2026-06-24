@@ -645,6 +645,18 @@
   }
 
   function removeStackHighlighterMarks() {
+    if (typeof CSS !== "undefined" && CSS.highlights) {
+      CSS.highlights.delete("stack-highlighter-active");
+
+      if (typeof CSS.highlights.keys === "function") {
+        for (const name of Array.from(CSS.highlights.keys())) {
+          if (String(name).startsWith("stack-highlighter-category-")) {
+            CSS.highlights.delete(name);
+          }
+        }
+      }
+    }
+
     const marks = document.querySelectorAll(".stack-highlighter-mark");
     for (const mark of marks) {
       const text = document.createTextNode(mark.textContent || "");
