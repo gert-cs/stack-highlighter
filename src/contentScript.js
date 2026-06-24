@@ -33,9 +33,6 @@
   const SKIP_SELECTOR = [
     "a",
     "button",
-    "h1",
-    "h2",
-    "h3",
     "script",
     "style",
     "textarea",
@@ -45,7 +42,6 @@
     "code",
     "pre",
     "[role='button']",
-    "[role='heading']",
     "[contenteditable='true']",
     `.${HIGHLIGHT_CLASS}`
   ].join(",");
