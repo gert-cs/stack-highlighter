@@ -1,6 +1,6 @@
 # Stack Highlighter
 
-Stack Highlighter is a small unpacked Chrome extension for job-search reading. It highlights useful terms on the current page and lets you manage keyword bubbles from a right-side Chrome side panel.
+Stack Highlighter is a small Chrome extension for job-search reading. It highlights useful terms directly on the current page and lets you manage keyword bubbles from a right-side Chrome side panel when needed.
 
 ## Screenshots
 
@@ -14,7 +14,8 @@ Additional Chrome Web Store screenshots can be placed in `assets/screenshots/`.
 ## What It Does
 
 - Highlights page keywords by category.
-- Opens a right-side panel from the extension button.
+- Opens a right-side panel from the extension button when you want counts, jumps, or keyword edits.
+- Keeps page highlights visible while the side panel is closed, as long as Stack Highlighter is ON.
 - Lists keywords as compact color-coded bubbles.
 - Puts red flags first and starts every category collapsed.
 - Expands or collapses a category by clicking its header area, while `+` still only adds keywords.
@@ -48,7 +49,8 @@ Stack Highlighter is an unpacked Chrome extension, so it does not need to be pub
 3. Turn on `Developer mode` in the top-right corner.
 4. Click `Load unpacked`.
 5. Select the local `stack-highlighter` folder. Select the folder that contains `manifest.json`, not the `src` folder.
-6. Open a job page and click the Stack Highlighter extension icon.
+6. Open a job page. Stack Highlighter is ON by default; refresh the page once if the job page was already open before install.
+7. Click the Stack Highlighter extension icon when you want to open the side panel.
 
 If the icon is hidden, open Chrome's extensions menu and pin `Stack Highlighter` to the toolbar.
 
@@ -58,7 +60,7 @@ After changing local files, go back to `chrome://extensions` and click the reloa
 
 ### Enable Or Disable Highlighting
 
-Use the power button in the top-right corner of the side panel to enable or disable all highlighting. When disabled, existing highlights are removed from the current page and the panel shows a disabled overlay with an `Enable` button.
+Use the ON/OFF switch in the top-right corner of the side panel to enable or disable all highlighting. Closing the side panel does not turn highlights off. If you turn highlighting OFF, the rest of the panel is dimmed and blocked until you use the ON/OFF switch or open the side panel again.
 
 ### Add Keywords From A Page Selection
 
@@ -80,15 +82,15 @@ Click the lightbulb button on a category header to disable or enable that catego
 
 ### Backup Keywords
 
-Click `Export json keywords` to download the current keyword table as a JSON backup.
+Open `Advanced options`, then click `Export JSON` to download the current keyword table as a JSON backup.
 
 ### Restore Keywords
 
-Click `Import json keywords` and choose a previously exported JSON file. Invalid JSON or duplicate category names are rejected.
+Open `Advanced options`, then click `Import JSON` and choose a previously exported JSON file. Invalid JSON or duplicate category names are rejected.
 
-### Advanced JSON Customization
+### Advanced JSON Options
 
-Click `View Json keywords` to edit the keyword table directly. The JSON format contains category `name`, `color`, `enabled`, and `keywords` fields. Click `Save` to validate and apply the edited JSON.
+Open `Advanced options`, then click `View JSON` to edit the keyword table directly. The JSON format contains category `name`, `color`, `enabled`, and `keywords` fields. Click `Save` to validate and apply the edited JSON.
 
 ### Add Or Delete Categories
 

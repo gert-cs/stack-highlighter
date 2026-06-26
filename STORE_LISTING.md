@@ -17,7 +17,7 @@ Highlight job-search keywords by category on the current page.
 
 ## Single Purpose
 
-Stack Highlighter helps job seekers scan job descriptions faster by highlighting saved keywords directly on the current page and showing current-page keyword hits in a side panel.
+Stack Highlighter helps job seekers scan job descriptions faster by highlighting saved keywords directly on the current page. The side panel is optional and is used for current-page keyword hits, jumps, and keyword edits.
 
 ## Detailed Description
 
@@ -28,7 +28,9 @@ It highlights useful job-search terms directly on the current page and organizes
 Key features:
 
 - Highlight job-description keywords by category.
-- Show current-page keyword hits in a compact side panel.
+- Show current-page keyword hits in a compact optional side panel.
+- Keep highlights visible after the side panel is closed while Stack Highlighter is ON.
+- Turn highlighting back ON when the side panel is opened after a previous OFF session.
 - Jump from a keyword chip to matching text on the page.
 - Add keywords from selected page text.
 - Add, delete, reorder, enable, or disable keyword categories.
@@ -50,6 +52,11 @@ Stack Highlighter is designed for job boards, company career pages, ATS pages, a
 - Icon: `assets/icons/icon-128.png` (`128x128`)
 - Small promotional image: `assets/store-listing/small-promo-440x280.png` (`440x280`)
 - Main screenshot: `assets/store-listing/screenshot-main-1280x800.png` (`1280x800`)
+- Screenshot 1: `assets/store-listing/screenshot-1-hero-1280x800.png` (`1280x800`)
+- Screenshot 2: `assets/store-listing/screenshot-2-highlights-1280x800.png` (`1280x800`)
+- Screenshot 3: `assets/store-listing/screenshot-3-keyword-management-1280x800.png` (`1280x800`)
+- Screenshot 4: `assets/store-listing/screenshot-4-on-off-1280x800.png` (`1280x800`)
+- Screenshot 5: `assets/store-listing/screenshot-5-advanced-options-1280x800.png` (`1280x800`)
 
 ## Privacy Policy URL
 
@@ -95,9 +102,11 @@ Used to highlight job-search keywords across many job boards, company career pag
 ## Review Notes / Test Instructions
 
 1. Install the extension.
-2. Open a job description page.
-3. Open the Stack Highlighter side panel from the extension icon.
-4. Confirm that keywords are highlighted on the page and page-hit chips appear in the side panel.
-5. Click a keyword chip to jump to a matching occurrence.
-6. Select short text on the page and use a category add button to save it as a keyword.
-7. Use Export JSON and Import JSON to verify keyword backup and restore behavior.
+2. Confirm the first-run welcome page opens and explains that the side panel is optional.
+3. Open a job description page and refresh it once if it was already open before install.
+4. Confirm that keywords are highlighted directly on the page.
+5. Open the Stack Highlighter side panel from the extension icon and confirm page-hit chips appear.
+6. Use the ON/OFF switch to pause and resume highlighting.
+7. Click a keyword chip to jump to a matching occurrence.
+8. Select short text on the page and use a category add button to save it as a keyword.
+9. Use Export JSON and Import JSON to verify keyword backup and restore behavior.

@@ -42,9 +42,8 @@
   const selectionBar = document.getElementById("selectionBar");
   const selectionText = document.getElementById("selectionText");
   const enabledToggleButton = document.getElementById("enabledToggleButton");
+  const enabledTitleState = document.getElementById("enabledTitleState");
   const disabledOverlay = document.getElementById("disabledOverlay");
-  const disabledEnableButton = document.getElementById("disabledEnableButton");
-  const refreshButton = document.getElementById("refreshButton");
   const matchSummary = document.getElementById("matchSummary");
   const viewJsonButton = document.getElementById("viewJsonButton");
   const exportJsonButton = document.getElementById("exportJsonButton");
@@ -83,6 +82,10 @@
     ]);
     categories = categoriesFromStorage(stored[STORAGE_KEYS.categories]);
     highlightingEnabled = isHighlightingEnabled(stored[STORAGE_KEYS.enabled]);
+    if (stored[STORAGE_KEYS.enabled] === false) {
+      highlightingEnabled = true;
+      await chrome.storage.sync.set({ [STORAGE_KEYS.enabled]: true });
+    }
 
     if (needsKeywordDataMigration(stored[STORAGE_KEYS.keywordDataVersion])) {
       categories = migrateCategoriesForVersion(categories, stored[STORAGE_KEYS.keywordDataVersion]);
@@ -136,6 +139,7 @@
 
   /** Small state helpers used by rendering and storage-event guards. */
   function currentQuery() {
+    if (!searchInput) return "";
     return sanitizeKeyword(searchInput.value);
   }
 
@@ -391,9 +395,12 @@
   }
 
   function renderEnabledState() {
-    enabledToggleButton.classList.toggle("enabled-off", !highlightingEnabled);
-    enabledToggleButton.title = highlightingEnabled ? "Disable highlights" : "Enable highlights";
+    enabledTitleState.textContent = highlightingEnabled ? "ON" : "OFF";
+    enabledTitleState.classList.toggle("state-off", !highlightingEnabled);
+    enabledToggleButton.classList.toggle("toggle-off", !highlightingEnabled);
+    enabledToggleButton.title = highlightingEnabled ? "Turn highlights off" : "Turn highlights on";
     enabledToggleButton.setAttribute("aria-label", enabledToggleButton.title);
+    enabledToggleButton.setAttribute("aria-pressed", String(highlightingEnabled));
     document.querySelector(".app-shell")?.classList.toggle("disabled", !highlightingEnabled);
     disabledOverlay.classList.toggle("hidden", highlightingEnabled);
   }
@@ -693,19 +700,21 @@
   }
 
   /** Panel control event bindings. */
-  searchInput.addEventListener("input", () => {
-    render();
-  });
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      render();
+    });
+  }
 
-  clearSearchButton.addEventListener("click", () => {
-    searchInput.value = "";
-    render();
-    searchInput.focus();
-  });
+  if (searchInput && clearSearchButton) {
+    clearSearchButton.addEventListener("click", () => {
+      searchInput.value = "";
+      render();
+      searchInput.focus();
+    });
+  }
 
-  refreshButton.addEventListener("click", refreshPageMatches);
   enabledToggleButton.addEventListener("click", toggleHighlightingEnabled);
-  disabledEnableButton.addEventListener("click", toggleHighlightingEnabled);
   viewJsonButton.addEventListener("click", toggleJsonEditor);
   exportJsonButton.addEventListener("click", exportJsonKeywords);
   importJsonButton.addEventListener("click", () => importJsonFileInput.click());

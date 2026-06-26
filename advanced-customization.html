@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stack Highlighter Advanced Options</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5faf7;
+        --surface: #ffffff;
+        --text: #1f3029;
+        --muted: #65766f;
+        --line: #dce9e3;
+        --green: #16844f;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text);
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+      }
+
+      main {
+        width: min(920px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 42px 0 70px;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .back-link:hover,
+      .back-link:focus-visible {
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+        outline: none;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 34px 0 12px;
+        font-size: clamp(34px, 7vw, 62px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .intro {
+        max-width: 720px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1.45;
+      }
+
+      section {
+        margin-top: 24px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: 0 16px 34px rgba(40, 72, 58, 0.06);
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      p:last-child {
+        margin-bottom: 0;
+      }
+
+      ul,
+      ol {
+        margin: 12px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      strong {
+        color: var(--text);
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        color: #184d36;
+        font-weight: 800;
+      }
+
+      pre {
+        margin: 14px 0 0;
+        overflow-x: auto;
+        border: 1px solid #d7e5de;
+        border-radius: 8px;
+        padding: 16px;
+        color: #1d2b25;
+        background: #f8fbf9;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          padding-top: 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back-link" href="welcome.html">← Back to welcome</a>
+
+      <h1>Advanced options</h1>
+      <p class="intro">Use this page when you want to edit the whole keyword table at once, back it up, or restore it on another browser.</p>
+
+      <section>
+        <h2>Open the table tools</h2>
+        <p>Open the side panel and expand <code>Advanced options</code>. These buttons control the same keyword data that powers chips, category colors, ON/OFF states, and page highlights.</p>
+        <ul>
+          <li><strong><code>View JSON</code></strong> opens the editor with your current table. Use it when you want to rename categories, reorder keywords, change colors, or make several edits faster than clicking chips one by one.</li>
+          <li><strong><code>Export JSON</code></strong> downloads a backup file. Use it before large edits, or when you want to copy the same keyword table to another Chrome profile.</li>
+          <li><strong><code>Import JSON</code></strong> reads a backup file and replaces the current table only after the file passes validation.</li>
+          <li><strong><code>Save</code></strong> validates the text in the editor, stores it, redraws the side panel, and asks the current page to refresh its highlights.</li>
+          <li><strong><code>Close</code></strong> hides the editor without saving the unsaved text.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>JSON shape</h2>
+        <p>The file is one object with a <code>categories</code> list. Each item in that list becomes one category card in the side panel.</p>
+        <pre><code>{
+  "categories": [
+    {
+      "name": "Hard Skills",
+      "color": "#4f8cff",
+      "enabled": true,
+      "keywords": [
+        "python",
+        "java",
+        "react",
+        "aws"
+      ]
+    },
+    {
+      "name": "Red Flags",
+      "color": "#ff6b6b",
+      "enabled": true,
+      "keywords": [
+        "visa sponsorship",
+        "security clearance",
+        "u.s. person"
+      ]
+    }
+  ]
+}</code></pre>
+        <p>Keep the structure exactly like this: curly braces for objects, square brackets for lists, double quotes around text, and commas between items.</p>
+      </section>
+
+      <section>
+        <h2>Field-by-field meaning</h2>
+        <p><code>categories</code> is the full table. The order of this list is the order of category cards in the side panel.</p>
+        <p><code>name</code> is the category title shown in the side panel, such as <code>Hard Skills</code> or <code>Red Flags</code>. Keep category names unique so Stack Highlighter can tell cards apart.</p>
+        <p><code>color</code> controls the category dot, chip color, and highlight color on the page. Use a six-digit hex color such as <code>#14b8a6</code>.</p>
+        <p><code>enabled</code> controls whether that category participates in highlighting. Set it to <code>false</code> to keep the keywords in your table while pausing that category.</p>
+        <p><code>keywords</code> is the list of words or phrases to find on job pages. A keyword can be a single term like <code>python</code> or a phrase like <code>visa sponsorship</code>.</p>
+      </section>
+
+      <section>
+        <h2>Common edits</h2>
+        <p>To add keywords, put more strings inside a category's <code>keywords</code> list. The side panel will show them as chips after you click <code>Save</code>.</p>
+        <pre><code>{
+  "name": "Hard Skills",
+  "color": "#4f8cff",
+  "enabled": true,
+  "keywords": [
+    "python",
+    "java",
+    "react",
+    "aws",
+    "kubernetes"
+  ]
+}</code></pre>
+        <p>To pause a category without deleting it, change <code>enabled</code> from <code>true</code> to <code>false</code>. This removes that category's highlights but keeps the data for later.</p>
+        <pre><code>{
+  "name": "Soft Skills",
+  "color": "#f2b84b",
+  "enabled": false,
+  "keywords": [
+    "communication",
+    "teamwork"
+  ]
+}</code></pre>
+        <p>To make a new category, copy one category object, paste it inside <code>categories</code>, then change its <code>name</code>, <code>color</code>, and <code>keywords</code>.</p>
+      </section>
+
+      <section>
+        <h2>Validation rules</h2>
+        <p>Stack Highlighter rejects invalid JSON, duplicate category names, missing fields, invalid colors, and empty keyword lists. That is intentional: a bad import should not overwrite a working table.</p>
+        <p>For safer editing, click <code>Export JSON</code> first, make your changes in <code>View JSON</code>, then click <code>Save</code>. If something feels wrong, import the backup you exported.</p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stack Highlighter Setup</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5faf7;
+        --text: #1f3029;
+        --muted: #65766f;
+        --line: #dce9e3;
+        --green: #16844f;
+        --red: #c94a43;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text);
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+      }
+
+      main {
+        width: min(920px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 58px 0 70px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 14px;
+        max-width: 760px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 7vw, 62px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        max-width: 650px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 24px;
+        font-weight: 760;
+        line-height: 1.45;
+      }
+
+      .section-title {
+        margin: 42px 0 0;
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 38px;
+      }
+
+      .step {
+        min-height: 190px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 16px 34px rgba(40, 72, 58, 0.08);
+      }
+
+      .step > span {
+        display: inline-grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        border-radius: 999px;
+        color: #ffffff;
+        background: var(--green);
+        font-weight: 850;
+      }
+
+      .step h2 {
+        margin: 22px 0 8px;
+        font-size: 20px;
+        line-height: 1.15;
+      }
+
+      .step p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .step p + p {
+        margin-top: 8px;
+      }
+
+      .step strong {
+        color: var(--text);
+      }
+
+      .browser-hint {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        border: 1px solid rgba(220, 232, 226, 0.9);
+        border-radius: 8px;
+        padding: 10px;
+        background: #f6f8f7;
+      }
+
+      .url-bar {
+        display: flex;
+        min-width: 0;
+        height: 22px;
+        align-items: center;
+        flex: 1 1 auto;
+        border-radius: 999px;
+        padding: 0 10px;
+        color: #8d9a94;
+        background: #e8eeeb;
+        font-size: 10px;
+        font-weight: 650;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .toolbar-separator {
+        width: 1px;
+        height: 22px;
+        background: #d4dfda;
+      }
+
+      .extension-icon {
+        display: block;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 auto;
+        opacity: 0.72;
+      }
+
+      .note {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 14px;
+        align-items: start;
+        margin-top: 22px;
+        border: 1px solid rgba(201, 74, 67, 0.18);
+        border-radius: 8px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .release-notes {
+        margin-top: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 16px 34px rgba(40, 72, 58, 0.06);
+      }
+
+      .release-notes h2 {
+        margin: 0 0 10px;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .release-notes ul {
+        display: grid;
+        gap: 8px;
+        margin: 0 0 18px;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .release-notes ul:last-child {
+        margin-bottom: 0;
+      }
+
+      .release-entry {
+        margin: 0 0 18px;
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .release-notes strong {
+        color: var(--text);
+      }
+
+      a {
+        color: var(--green);
+        font-weight: 800;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+      }
+
+      .switch-demo {
+        display: inline-grid;
+        grid-template-columns: auto 52px auto;
+        gap: 7px;
+        align-items: center;
+        margin-top: 4px;
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .track {
+        position: relative;
+        display: block;
+        width: 52px;
+        height: 30px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #24b96f, #148650);
+      }
+
+      .track::after {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 3px 8px rgba(24, 42, 34, 0.26);
+        content: "";
+      }
+
+      .note strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 16px;
+      }
+
+      .note p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          padding-top: 34px;
+        }
+
+        .steps {
+          grid-template-columns: 1fr;
+        }
+
+        .step {
+          min-height: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero" aria-label="Stack Highlighter setup">
+        <h1>Welcome to<br />Stack Highlighter</h1>
+        <p class="subtitle">Scan job descriptions faster.</p>
+      </section>
+
+      <h2 class="section-title">First-use guide</h2>
+      <section class="steps" aria-label="First steps">
+        <article class="step">
+          <span>1</span>
+          <h2>Open the extension</h2>
+          <p>Look at the top-right of Chrome, just to the right of the URL bar. Click the extensions icon, then pin or open Stack Highlighter.</p>
+          <div class="browser-hint" aria-label="Chrome extensions icon location">
+            <span class="url-bar" aria-hidden="true">www.linkedin.com/jobs</span>
+            <span class="toolbar-separator" aria-hidden="true"></span>
+            <img class="extension-icon" src="assets/icons/puzzle.png" alt="" aria-hidden="true" />
+          </div>
+        </article>
+        <article class="step">
+          <span>2</span>
+          <h2>Control highlights from the side panel</h2>
+          <p>Use ON/OFF to control keyword highlights on the current page. Try it on LinkedIn.</p>
+        </article>
+        <article class="step">
+          <span>3</span>
+          <h2>Manage your tech stack</h2>
+          <p><strong>Add:</strong> select a word on the page and add it from the side panel.</p>
+          <p><strong>Delete:</strong> click x to remove a stack.</p>
+          <p><strong>Highlight:</strong> click a stack chip to jump to its match.</p>
+          <p>Open the <a href="advanced-customization.html">Advanced options guide</a> for JSON edits.</p>
+        </article>
+      </section>
+
+      <section class="note" aria-label="Enable or disable highlights">
+        <div class="switch-demo" aria-hidden="true">
+          <span style="color: var(--green)">ON</span>
+          <span class="track"></span>
+          <span style="color: var(--red)">OFF</span>
+        </div>
+        <div>
+          <strong>Enable or disable anytime.</strong>
+          <p>The ON/OFF switch in the side panel controls highlighting across pages. Closing the side panel does not turn highlights off; opening it again turns Stack Highlighter ON.</p>
+        </div>
+      </section>
+
+      <section class="release-notes" aria-label="Version update history">
+        <h2>Update version log</h2>
+
+        <h3 class="release-entry">0.4.0</h3>
+        <ul>
+          <li>Added the welcome page and Advanced options guide.</li>
+          <li>Opened the welcome page only on install or meaningful minor-version updates.</li>
+          <li>Made the side panel easier to understand with ON/OFF labels and a fixed switch.</li>
+          <li>Kept page highlights active while the side panel is closed.</li>
+          <li>Added jump feedback when clicking stack chips.</li>
+          <li>Improved extension reload safety for existing pages.</li>
+        </ul>
+
+        <h3 class="release-entry">0.3.2</h3>
+        <ul>
+          <li>Corrected the package version after publication.</li>
+        </ul>
+
+        <h3 class="release-entry">0.3.0</h3>
+        <ul>
+          <li>First public Chrome Web Store version.</li>
+          <li>Published the core side panel, keyword chips, and page highlighting workflow.</li>
+          <li>Included Chrome Web Store assets, listing copy, and privacy policy.</li>
+        </ul>
+
+        <h3 class="release-entry">Before 0.3.0</h3>
+        <ul>
+          <li>Built the first keyword highlighting prototype.</li>
+          <li>Added heading coverage for page highlights.</li>
+          <li>Moved page highlighting to a range-based engine.</li>
+          <li>Loaded default keywords from JSON.</li>
+          <li>Added editable category colors.</li>
+          <li>Avoided mutating interactive page headers.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

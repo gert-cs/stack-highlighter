@@ -10,41 +10,42 @@
     <main class="app-shell">
       <header class="app-header">
         <div>
-          <h1>Stack Highlighter</h1>
+          <p class="app-eyebrow">Job page scanner</p>
+          <h1><a class="title-home-link" href="welcome.html" target="_blank" rel="noopener">Stack Highlighter</a> <span id="enabledTitleState">ON</span></h1>
           <p id="matchSummary">Ready to scan this page</p>
         </div>
         <div class="header-actions" aria-label="Highlight actions">
-          <button class="icon-button" id="enabledToggleButton" type="button" title="Disable highlights" aria-label="Disable highlights">
-            <span aria-hidden="true">⏻</span>
-          </button>
-          <button class="icon-button" id="refreshButton" type="button" title="Refresh highlights" aria-label="Refresh highlights">
-            <span aria-hidden="true">↻</span>
+          <button class="toggle-button" id="enabledToggleButton" type="button" title="Turn highlights off" aria-label="Turn highlights off" aria-pressed="true">
+            <span class="toggle-label toggle-label-on">ON</span>
+            <span class="toggle-track" aria-hidden="true">
+              <span class="toggle-thumb"></span>
+            </span>
+            <span class="toggle-label toggle-label-off">OFF</span>
           </button>
         </div>
       </header>
 
-      <section class="search-wrap" aria-label="Search keywords">
-        <input id="searchInput" type="search" placeholder="Search or select text on page" autocomplete="off" />
-        <button id="clearSearchButton" class="icon-button muted" type="button" title="Clear search" aria-label="Clear search">
-          <span aria-hidden="true">×</span>
-        </button>
-      </section>
+      <!-- Search bar temporarily hidden while category chips carry the primary browsing flow. -->
 
-      <section class="table-actions" aria-label="Keyword table actions">
-        <button id="viewJsonButton" type="button">View Json keywords</button>
-        <button id="exportJsonButton" type="button">Export json keywords</button>
-        <button id="importJsonButton" type="button">Import json keywords</button>
-        <input id="importJsonFileInput" class="hidden" type="file" accept="application/json,.json" />
-      </section>
+      <details class="advanced-tools">
+        <summary>Advanced options</summary>
+        <section class="table-actions" aria-label="Keyword table actions">
+          <button id="viewJsonButton" type="button">View JSON</button>
+          <button id="exportJsonButton" type="button">Export JSON</button>
+          <button id="importJsonButton" type="button">Import JSON</button>
+          <input id="importJsonFileInput" class="hidden" type="file" accept="application/json,.json" />
+        </section>
+        <a class="advanced-guide-link" href="advanced-customization.html" target="_blank" rel="noopener">Advanced options guide</a>
 
-      <section id="jsonEditorPanel" class="json-editor-panel hidden" aria-label="Keyword JSON editor">
-        <textarea id="jsonTextarea" spellcheck="false" autocomplete="off"></textarea>
-        <p id="jsonError" class="json-error" aria-live="polite"></p>
-        <div class="json-editor-actions">
-          <button id="jsonSaveButton" type="button">Save</button>
-          <button id="jsonCloseButton" type="button">Close</button>
-        </div>
-      </section>
+        <section id="jsonEditorPanel" class="json-editor-panel hidden" aria-label="Keyword JSON editor">
+          <textarea id="jsonTextarea" spellcheck="false" autocomplete="off"></textarea>
+          <p id="jsonError" class="json-error" aria-live="polite"></p>
+          <div class="json-editor-actions">
+            <button id="jsonSaveButton" type="button">Save</button>
+            <button id="jsonCloseButton" type="button">Close</button>
+          </div>
+        </section>
+      </details>
 
       <section id="selectionBar" class="selection-bar hidden" aria-live="polite">
         <div>
@@ -67,12 +68,7 @@
         </form>
       </section>
 
-      <section id="disabledOverlay" class="disabled-overlay hidden" aria-live="polite">
-        <div class="disabled-card">
-          <strong>Disabled</strong>
-          <button id="disabledEnableButton" type="button">Enable</button>
-        </div>
-      </section>
+      <section id="disabledOverlay" class="disabled-overlay hidden" aria-hidden="true"></section>
     </main>
 
     <template id="categoryTemplate">

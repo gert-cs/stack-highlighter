@@ -30,6 +30,9 @@
   const HIGHLIGHT_STYLE_ID = "stack-highlighter-range-style";
   const HIGHLIGHT_NAME_PREFIX = "stack-highlighter-category-";
   const ACTIVE_HIGHLIGHT_NAME = "stack-highlighter-active";
+  const ACTIVE_RING_CLASS = "stack-highlighter-active-ring";
+  const ACTIVE_RING_FADING_CLASS = "stack-highlighter-active-ring-fading";
+  const ACTIVE_RING_DURATION_MS = 3000;
   const SKIP_SELECTOR = [
     "a",
     "button",
@@ -43,7 +46,8 @@
     "pre",
     "[role='button']",
     "[contenteditable='true']",
-    `.${HIGHLIGHT_CLASS}`
+    `.${HIGHLIGHT_CLASS}`,
+    `.${ACTIVE_RING_CLASS}`
   ].join(",");
 
   /** Runtime page state owned by this content script instance. */
@@ -56,6 +60,8 @@
   let lastPageMatches = { url: location.href, updatedAt: 0, keywords: [] };
   let readyPromise = Promise.resolve();
   let lastHighlightRecords = [];
+  let activeRingTimer = 0;
+  let activeRingFrame = 0;
   const appliedHighlightNames = new Set();
   const jumpPositions = new Map();
 
@@ -190,6 +196,19 @@
       });
   }
 
+  function isExtensionContextInvalidatedError(error) {
+    return String(error?.message || error).includes("Extension context invalidated");
+  }
+
+  async function safeStorageLocalSet(values) {
+    try {
+      await chrome.storage.local.set(values);
+    } catch (error) {
+      if (isExtensionContextInvalidatedError(error)) return;
+      throw error;
+    }
+  }
+
   /** Refresh scheduling and mutation filtering. */
   function shouldRefreshForMutation(mutation) {
     const target = mutation.target.nodeType === Node.ELEMENT_NODE ? mutation.target : mutation.target.parentElement;
@@ -219,7 +238,6 @@
 
     isRefreshing = true;
     clearHighlights();
-    jumpPositions.clear();
     lastHighlightRecords = [];
 
     if (!highlightingEnabled) {
@@ -265,7 +283,7 @@
   async function savePageMatches(matches) {
     if (document.visibilityState !== "visible") return;
 
-    await chrome.storage.local.set({
+    await safeStorageLocalSet({
       [STORAGE_KEYS.pageMatches]: matches
     });
   }
@@ -273,6 +291,7 @@
   function clearHighlights() {
     clearRangeHighlights();
     removeLegacyHighlights();
+    clearActiveRing();
   }
 
   function clearRangeHighlights() {
@@ -403,7 +422,7 @@
     });
 
     rules.push(
-      `::highlight(${ACTIVE_HIGHLIGHT_NAME}) { background-color: rgba(29, 123, 240, 0.24); text-decoration: underline 2px #1d7bf0; }`
+      `::highlight(${ACTIVE_HIGHLIGHT_NAME}) { background-color: transparent; text-decoration: underline 2px rgba(246, 190, 0, 0.95); }`
     );
 
     let style = document.getElementById(HIGHLIGHT_STYLE_ID);
@@ -510,6 +529,8 @@
     document.querySelectorAll(".stack-highlighter-active").forEach((mark) => {
       mark.classList.remove("stack-highlighter-active");
     });
+
+    clearActiveRing();
   }
 
   function findKeywordMatches(normalizedKeyword) {
@@ -524,11 +545,72 @@
     if (match?.range && supportsRangeHighlights()) {
       CSS.highlights.set(ACTIVE_HIGHLIGHT_NAME, new Highlight(match.range));
       scrollRangeIntoView(match.range);
+      trackActiveRing(() => rangeRect(match.range));
       return;
     }
 
     match.classList.add("stack-highlighter-active");
     match.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    trackActiveRing(() => match.getBoundingClientRect());
+  }
+
+  function rangeRect(range) {
+    const rects = [...range.getClientRects()].filter((rect) => rect.width && rect.height);
+    if (rects.length === 0) return range.getBoundingClientRect();
+
+    const left = Math.min(...rects.map((rect) => rect.left));
+    const top = Math.min(...rects.map((rect) => rect.top));
+    const right = Math.max(...rects.map((rect) => rect.right));
+    const bottom = Math.max(...rects.map((rect) => rect.bottom));
+    return { left, top, width: right - left, height: bottom - top };
+  }
+
+  function trackActiveRing(rectProvider) {
+    clearActiveRing();
+    if (!document.body) return;
+
+    const ring = document.createElement("div");
+    ring.className = ACTIVE_RING_CLASS;
+    document.body.append(ring);
+    let lastRect = null;
+
+    activeRingTimer = window.setTimeout(() => {
+      cancelAnimationFrame(activeRingFrame);
+      ring.classList.add(ACTIVE_RING_FADING_CLASS);
+      window.setTimeout(() => ring.remove(), 420);
+    }, ACTIVE_RING_DURATION_MS);
+
+    function updateRingPosition() {
+      let rect = null;
+      try {
+        rect = rectProvider();
+      } catch {
+        rect = lastRect;
+      }
+
+      if (rect?.width && rect?.height) {
+        lastRect = rect;
+        positionActiveRing(ring, rect);
+      }
+
+      activeRingFrame = window.requestAnimationFrame(updateRingPosition);
+    }
+
+    updateRingPosition();
+  }
+
+  function positionActiveRing(ring, rect) {
+    const padding = Math.max(8, Math.min(18, Math.round(Math.max(rect.width, rect.height) * 0.2)));
+    ring.style.left = `${rect.left - padding}px`;
+    ring.style.top = `${rect.top - padding}px`;
+    ring.style.width = `${rect.width + padding * 2}px`;
+    ring.style.height = `${rect.height + padding * 2}px`;
+  }
+
+  function clearActiveRing() {
+    cancelAnimationFrame(activeRingFrame);
+    clearTimeout(activeRingTimer);
+    document.querySelectorAll(`.${ACTIVE_RING_CLASS}`).forEach((ring) => ring.remove());
   }
 
   function scrollRangeIntoView(range) {
@@ -562,7 +644,7 @@
     const selection = window.getSelection();
     const selected = selectionKeyword(selection?.toString() || "");
 
-    await chrome.storage.local.set({
+    await safeStorageLocalSet({
       [STORAGE_KEYS.selectedText]: {
         text: selected,
         url: location.href,
